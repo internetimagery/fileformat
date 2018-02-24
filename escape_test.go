@@ -1,6 +1,5 @@
 // Testing escaping
-
-package main
+package fileformat
 
 import (
 	"fmt"
@@ -17,7 +16,7 @@ func TestEscape(t *testing.T) {
 		"/this/is/not/a/path.jpg",
 		"--date 20180203 --event coding --notes none"}
 	for _, name := range names {
-		esc := Escape(name)
+		esc := escape(name)
 		if strings.ContainsAny(esc, BLACKLIST) || name != html.UnescapeString(esc) {
 			fmt.Println("Old:", name)
 			fmt.Println("Esc:", esc)

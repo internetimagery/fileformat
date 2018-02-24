@@ -67,7 +67,7 @@ func Parse(name string) map[string]interface{} {
 
 	i := 0
 	for i < len(tokens) {
-		flag, arg, i = pull_args(tokens, i)
+		flag, arg, i := pull_args(tokens, i)
 		res[flag] = arg
 	}
 	return res

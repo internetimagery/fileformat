@@ -1,5 +1,5 @@
 // Escape bad characters for file pathnames
-package main
+package fileformat
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ const BLACKLIST = "/\\<|>?*!:\"" // Illegal filename characters
 
 // https://www.ascii.cl/htmlcodes.htm
 // Escape filename using HTML compliant characters
-func Escape(text string) string {
+func escape(text string) string {
 	res := ""
 	for i, char := range text {
 		esc := string(char)
