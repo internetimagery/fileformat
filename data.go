@@ -19,6 +19,7 @@ const (
 type Parser struct {
 	pos    int
 	tokens []string
+	seen   map[string]bool
 }
 
 func NewParser(name string) *Parser {
@@ -29,6 +30,7 @@ func NewParser(name string) *Parser {
 	}
 	parser := new(Parser)
 	parser.tokens = tokens
+	parser.seen = make(map[string]bool)
 	return parser
 }
 
@@ -47,11 +49,11 @@ func (self *Parser) Next() (string, interface{}) {
 	for self.pos < len(self.tokens) {
 		token := self.tokens[self.pos]
 		if '-' == token[0] {
-			if state == FLAG {
+			if state != NONE {
 				break
 			}
-			state = FLAG
 			flag = strings.TrimLeft(token, "-") // Strip leading dashes
+			state = FLAG
 		} else if state == FLAG {
 			state = STRING
 			str = token
@@ -71,6 +73,12 @@ func (self *Parser) Next() (string, interface{}) {
 		arg = str
 	case ARRAY:
 		arg = array
+	default:
+		arg = nil
 	}
+	if self.seen[flag] {
+		return "", nil
+	}
+	self.seen[flag] = true
 	return flag, arg
 }

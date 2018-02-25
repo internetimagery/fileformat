@@ -7,6 +7,13 @@ import (
 
 // NOTE: extensions (.jpg .tct etc) should be stripped before parsing.
 func TestParseSimple(t *testing.T) {
+	flag, data := NewParser("--taken 20170213").Next()
+	if flag != "taken" || data != "20170213" {
+		t.Fail()
+	}
+}
+
+func TestParsePrefixed(t *testing.T) {
 	flag, data := NewParser("IMG --date-captured 20170213").Next()
 	if flag != "date-captured" || data != "20170213" {
 		t.Fail()
@@ -30,15 +37,19 @@ func TestParseBool(t *testing.T) {
 }
 func TestParseNothing(t *testing.T) {
 	flag, data := NewParser(" ").Next()
-	if flag != "" || data nil {
+	if flag != "" || data != nil {
 		t.Fail()
 	}
 }
-
-
-// p3 := NewParser("--no-flag \"--no-flag args\" --something else")
-// p4 := NewParser("--flag one --flag two --flag three.csv")
-// flag, data = p2.Next()
-// if flag != "date" || len(data) != 3 {
-// 	t.Fail()
-// }
+func TestParseRepeated(t *testing.T) {
+	// Only keep first flag found
+	parser := NewParser("--flag1 data --flag1 more data")
+	flag, data := parser.Next()
+	if flag != "flag1" || data != "data" {
+		t.Fail()
+	}
+	flag, data = parser.Next()
+	if flag != "" || data != nil {
+		t.Fail()
+	}
+}
