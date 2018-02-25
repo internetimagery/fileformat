@@ -3,7 +3,8 @@ package fileformat
 
 import (
 	"html"
-	"strings"
+
+	"github.com/flynn-archive/go-shlex"
 )
 
 // Where are we?
@@ -14,39 +15,52 @@ const (
 	ARRAY         // -flag string1 string2 etc...
 )
 
+type Parser struct {
+	pos    int
+	tokens []string
+}
+
+func NewParser(name string) *Parser {
+	clean := html.UnescapeString(name) // First clean up string
+	tokens, err := shlex.Split(clean)
+	if err != nil {
+		panic(err)
+	}
+	parser := new(Parser)
+	parser.tokens = tokens
+	return parser
+}
+
 // Pull out data from filename
 // info before flags ignored
 // --flag1 :: flag1 = true
 // --flag2 data :: flag2 = data
 // --flag3 data1 data2 data3 :: flag3 = []string{data1, data2, data3}
-func pull_args(tokens []string, start int) (string, interface{}, int) {
+func (self *Parser) Arg() (string, interface{}) {
 	flag := ""
 	str := ""
 	array := []string{}
 
-	last_state := NONE
 	state := NONE
 
-	i := start
-	for i < len(tokens) {
-		token := tokens[i]
-		last_state = state
+	for self.pos < len(self.tokens) {
+		token := self.tokens[self.pos]
 		if '-' == token[0] {
-			if last_state == FLAG {
+			if state == FLAG {
 				break
 			}
 			state = FLAG
 			flag = token
-		} else if last_state == FLAG {
+		} else if state == FLAG {
 			state = STRING
 			str = token
-		} else if last_state == STRING {
+		} else if state == STRING {
 			state = ARRAY
 			array = []string{str, token}
-		} else if last_state == ARRAY {
+		} else if state == ARRAY {
 			array = append(array, token)
 		}
-		i++
+		self.pos++
 	}
 	var arg interface{}
 	switch state {
@@ -57,18 +71,5 @@ func pull_args(tokens []string, start int) (string, interface{}, int) {
 	case ARRAY:
 		arg = array
 	}
-	return flag, arg, i
-}
-
-func Parse(name string) map[string]interface{} {
-	clean := html.UnescapeString(name) // First clean up string
-	tokens := strings.Split(clean, " ")
-	res := make(map[string]interface{})
-
-	i := 0
-	for i < len(tokens) {
-		flag, arg, i := pull_args(tokens, i)
-		res[flag] = arg
-	}
-	return res
+	return flag, arg
 }

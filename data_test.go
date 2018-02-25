@@ -7,6 +7,6 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	tmp := Parse("hello darkness -my old friend...")
-	fmt.Println(tmp)
+	parser := NewParser("hello darkness -my old friend...")
+	fmt.Println(parser.Arg())
 }
