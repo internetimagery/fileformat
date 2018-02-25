@@ -28,6 +28,13 @@ func TestParseBool(t *testing.T) {
 		t.Fail()
 	}
 }
+func TestParseNothing(t *testing.T) {
+	flag, data := NewParser(" ").Next()
+	if flag != "" || data nil {
+		t.Fail()
+	}
+}
+
 
 // p3 := NewParser("--no-flag \"--no-flag args\" --something else")
 // p4 := NewParser("--flag one --flag two --flag three.csv")
