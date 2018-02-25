@@ -3,6 +3,7 @@ package fileformat
 
 import (
 	"html"
+	"strings"
 
 	"github.com/flynn-archive/go-shlex"
 )
@@ -36,7 +37,7 @@ func NewParser(name string) *Parser {
 // --flag1 :: flag1 = true
 // --flag2 data :: flag2 = data
 // --flag3 data1 data2 data3 :: flag3 = []string{data1, data2, data3}
-func (self *Parser) Arg() (string, interface{}) {
+func (self *Parser) Next() (string, interface{}) {
 	flag := ""
 	str := ""
 	array := []string{}
@@ -50,7 +51,7 @@ func (self *Parser) Arg() (string, interface{}) {
 				break
 			}
 			state = FLAG
-			flag = token
+			flag = strings.TrimLeft(token, "-") // Strip leading dashes
 		} else if state == FLAG {
 			state = STRING
 			str = token
